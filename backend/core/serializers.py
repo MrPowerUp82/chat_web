@@ -1,8 +1,6 @@
 from .models import User, Msg, Friend,Invite
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User as CUser
-from django.contrib.auth.models import Group
+
 
 class UserListSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -21,13 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
 		fields=('id','username','email','password','nome_chat')
 
 	def save(self, **kwargs):
-		group = Group.objects.get(name='base')
 		user = User(email=self.validated_data['email'],username=self.validated_data['username'])
 		password=(self.validated_data['password'])
 		user.is_active = True
 		user.set_password(password)
 		user.save()
-		user.groups.add(group)
 
 
 class MsgSerializer(serializers.ModelSerializer):

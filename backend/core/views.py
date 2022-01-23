@@ -11,6 +11,13 @@ from .serializers import UserSerializer, MsgSerializer, UserListSerializer,Invit
 from django.db.models import Q
 
 
+class CheckMsgView(APIView):
+    def get(self, request):
+        id = request.user.id
+        test = Msg.objects.filter(Q(send_user_msg_id=id) | Q(recv_user_msg_id=id))
+        serializer = {'lenght': len(test)}
+        return Response(serializer)
+
 class UserGetIdView(APIView):
     def get(self,request):
         id=request.user.id
@@ -48,7 +55,7 @@ class UserMsgView(APIView):
     def get(self, request, pk):
         user = User.objects.filter(id=pk)
         if not user:
-            return Response({'error': 'não existe esse usuário'})
+            return Response({'error': 'Não existe esse usuário'})
         serializer = UserListSerializer(user, many=True)
         return Response(serializer.data)
 
@@ -63,7 +70,7 @@ class MsgsBoxView(APIView):
         test_id = request.user.id
         test = Msg.objects.filter(Q(send_user_msg_id=test_id) | Q(recv_user_msg_id=test_id))
         if test.count() < 1:
-            return Response({'error': 'você não tem permissão para ver...'})
+            return Response({'error': 'Você não têm permissão para ver...'})
         serializer = MsgSerializer(msgs, many=True)
         return Response(serializer.data)
 
@@ -82,10 +89,10 @@ class InviteView(APIView):
             Q(user1_id=request.data['send_user_id']) & Q(user2_id=request.data['recv_user_id']) | Q(
                 user1_id=request.data['recv_user_id']) & Q(user2_id=request.data['send_user_id']))
         if test.count() >= 1:
-            return Response({'error': 'Vcs ja sao amigos'})
+            return Response({'error': 'Vocês já são amigos'})
         if (request.data['status']) == 1:
             if test.count() >= 1:
-                return Response({'error': 'Vcs ja sao amigos'})
+                return Response({'error': 'Vocês já são amigos'})
             else:
                 friend = FriendSerializer(data={
                     'user1_id': request.data['send_user_id'],
@@ -99,7 +106,7 @@ class InviteView(APIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
 
         if (Invite.objects.filter(Q(send_user_id=request.user.id) & Q(recv_user_id=request.data['recv_user_id'])).count() >= 1):
-            return Response({'error': 'vc já mandou para esse user'})
+            return Response({'error': 'Você já mandou para esse usuário.'})
         serializers.is_valid(raise_exception=True)
         serializers.save()
         return Response(serializers.data, status=status.HTTP_201_CREATED)
