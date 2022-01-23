@@ -16,10 +16,10 @@ class UserSerializer(serializers.ModelSerializer):
 			'password': {'write_only': True}
 		}
 		model=User
-		fields=('id','username','email','password','nome_chat')
+		fields=('id','username','password','nome_chat')
 
 	def save(self, **kwargs):
-		user = User(email=self.validated_data['email'],username=self.validated_data['username'])
+		user = User(username=self.validated_data['username'])
 		password=(self.validated_data['password'])
 		user.is_active = True
 		user.set_password(password)
